@@ -996,7 +996,7 @@ def run_backtest():
         win_rate = (won / total * 100) if total > 0 else 0
 
         avg_win = trades.get('won', {}).get('pnl', {}).get('average', 0) or 0
-        avg_loss = abs(trades.get('lost', {}).get('pnl', {}).get('average', 0) or 0))
+        avg_loss = abs(trades.get('lost', {}).get('pnl', {}).get('average', 0) or 0)
         profit_factor = (avg_win * won / avg_loss) if avg_loss > 0 else 0
 
         return jsonify({
