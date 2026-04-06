@@ -1,3 +1,4 @@
 backtrader
 matplotlib
 flask
+requests
