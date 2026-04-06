@@ -1,4 +1,5 @@
 backtrader
 matplotlib
 flask
-requests
+pandas_datareader
+yfinance

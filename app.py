@@ -243,12 +243,24 @@ def backtest():
             getattr(cerebro.broker, f'set_{key}')(value)
 
         if data_source == 'yahoo':
-            data_feed = bt.feeds.YahooFinanceData(
-                dataname=data_symbol,
-                fromdate=fromdate_dt,
-                todate=todate_dt,
-                **data_params
-            )
+            # Workaround: Use pandas_datareader for Yahoo Finance
+            try:
+                import pandas_datareader as pdr
+                import yfinance as yf
+                yf.pdr_override()
+                df = pdr.get_data_yahoo(data_symbol, start=fromdate_dt, end=todate_dt)
+                data_feed = bt.feeds.PandasData(dataname=df)
+            except Exception as e:
+                # Fallback: try direct yfinance
+                try:
+                    import yfinance as yf
+                    ticker = yf.Ticker(data_symbol)
+                    df = ticker.history(start=fromdate_dt, end=todate_dt)
+                    if df.empty:
+                        return jsonify({'error': f'No data found for {data_symbol}'}), 400
+                    data_feed = bt.feeds.PandasData(dataname=df)
+                except Exception as e2:
+                    return jsonify({'error': f'Failed to fetch Yahoo data: {str(e2)}'}), 400
         elif data_source == 'csv':
             data_url = data_params.pop('url', None)
             if not data_url:
